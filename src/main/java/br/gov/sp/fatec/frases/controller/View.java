@@ -6,4 +6,8 @@ public class View {
 
     public static class AviaoCompleto extends AviaoComum{};
 
+    public static class UsuarioSimplificado {};
+
+    public static class UsuarioCompleto extends UsuarioSimplificado {};
+
 }
