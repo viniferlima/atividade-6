@@ -4,8 +4,9 @@ import java.util.List;
 
 import br.gov.sp.fatec.frases.entity.Aviao;
 import br.gov.sp.fatec.frases.entity.Usuario;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface SegurancaService {
+public interface SegurancaService extends UserDetailsService {
 
     public Aviao novoAviao(String modelo, String prefixo, String cor, String pecas);
 
