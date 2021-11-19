@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.gov.sp.fatec.frases.entity.Autorizacao;
@@ -33,8 +35,12 @@ public class SegurancaServiceImpl implements SegurancaService {
     @Autowired
     AutorizacaoRepository autorizacaoRepo;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @Override
     @org.springframework.transaction.annotation.Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public Aviao novoAviao(String modelo, String prefixo, String cor, String pecas) {
         Peca peca = pecaRepo.findByDescricao(pecas);
         if (peca == null) {
@@ -55,11 +61,13 @@ public class SegurancaServiceImpl implements SegurancaService {
         return aviao;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public List<Aviao> buscarTodosAvioes() {
         return aviaoRepo.findAll();
     }
 
     @org.springframework.transaction.annotation.Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public Usuario novoUsuario(String nome, String email, String senha, String autorizacao) {
         
         Autorizacao aut = autorizacaoRepo.findByNome(autorizacao);
@@ -72,7 +80,7 @@ public class SegurancaServiceImpl implements SegurancaService {
         Usuario usuario = new Usuario();
         usuario.setNome(nome);
         usuario.setEmail(email);
-        usuario.setSenha(senha);
+        usuario.setSenha(passwordEncoder.encode(senha));
         usuario.setAutorizacoes(new HashSet<Autorizacao>());
         usuario.getAutorizacoes().add(aut);
         usuarioRepo.save(usuario);
@@ -81,6 +89,7 @@ public class SegurancaServiceImpl implements SegurancaService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public List<Usuario> buscarTodosUsuarios() {
         return usuarioRepo.findAll();
     }
